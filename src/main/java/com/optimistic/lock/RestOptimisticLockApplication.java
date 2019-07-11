@@ -1,13 +1,13 @@
-package com.etags.RestConcurrentOptimisticLock;
+package com.optimistic.lock;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RestConcurrentOptimisticLockApplication {
+public class RestOptimisticLockApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RestConcurrentOptimisticLockApplication.class, args);
+		SpringApplication.run(RestOptimisticLockApplication.class, args);
 	}
 
 }
