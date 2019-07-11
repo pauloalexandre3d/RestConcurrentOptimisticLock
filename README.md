@@ -1,1 +1,1 @@
-# RestConcurrentOptimisticLock
+# RestOptimisticLock
