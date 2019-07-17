@@ -19,4 +19,4 @@ I used a number of open source projects to work properly:
 
 Run the IntegrationTest!
 
-**Its Free!!**
+**Enjoy it!**
