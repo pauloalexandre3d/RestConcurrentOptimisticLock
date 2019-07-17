@@ -21,9 +21,9 @@ public class ExtendedRepositoryImpl<T, ID extends Serializable> extends SimpleJp
 	}
 
 	@Transactional
-	public Optional<T> findById(Long id) {
+	public Optional<Account> findById(Long id) {
 		Account account = entityManager.find(Account.class, id, LockModeType.OPTIMISTIC_FORCE_INCREMENT	);
-        return (Optional<T>) Optional.of(account);
+        return Optional.of(account);
 	}
 
 }
