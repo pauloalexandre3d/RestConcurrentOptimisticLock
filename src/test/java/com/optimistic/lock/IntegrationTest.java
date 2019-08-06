@@ -95,12 +95,15 @@ public class IntegrationTest {
 	@Test
 	public void testShouldAssertEtagExistsInHeader2() throws Exception {
 		Account accountSaved = (Account) accounts.save(new Account(null, null, 50L));
-		ResponseEntity<Account> response = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
+		ResponseEntity<Account> firstResponse = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
 				Account.class);
 
-		assertThat(response.getHeaders().getETag(), notNullValue());
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("If-None-Match", firstResponse.getHeaders().getETag());
+
+		HttpEntity<Account> entity = new HttpEntity<Account>(headers);
+		ResponseEntity<Account> secondResponse = restTemplate.exchange("/accounts/" + accountSaved.getId()+"/custom-etag", HttpMethod.GET, entity, Account.class);
 		
-		this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
-				Account.class).getHeaders().add("If-None-Match", response.getHeaders().getETag());
+		assertThat(secondResponse.getStatusCodeValue(), equalTo(304));
 	}
 }
