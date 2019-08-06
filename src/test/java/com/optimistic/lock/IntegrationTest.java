@@ -91,4 +91,16 @@ public class IntegrationTest {
 
 		assertThat(response.getHeaders().getETag(), notNullValue());
 	}
+	
+	@Test
+	public void testShouldAssertEtagExistsInHeader2() throws Exception {
+		Account accountSaved = (Account) accounts.save(new Account(null, null, 50L));
+		ResponseEntity<Account> response = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
+				Account.class);
+
+		assertThat(response.getHeaders().getETag(), notNullValue());
+		
+		this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
+				Account.class).getHeaders().add("If-None-Match", response.getHeaders().getETag());
+	}
 }
