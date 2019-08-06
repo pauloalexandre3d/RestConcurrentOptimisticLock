@@ -1,7 +1,7 @@
 package com.optimistic.lock;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat; 
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,5 +81,14 @@ public class IntegrationTest {
 
 		assertThat(responseEntity.getStatusCode(), equalTo(HttpStatus.OK));
 		assertThat(accountUpdated.getBalance(), equalTo(10L));
+	}
+	
+	@Test
+	public void testName() throws Exception {
+		Account accountSaved = (Account) accounts.save(new Account(null, null, 50L));
+		ResponseEntity<Account> response = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
+				Account.class);
+
+		assertThat(response.getHeaders().getETag(), notNullValue());
 	}
 }

@@ -1,4 +1,4 @@
-package com.optimistic.lock.controller;
+package com.optimistic.lock.controller.exception;
 
 public class AccountOldVersionedException extends RuntimeException {
 

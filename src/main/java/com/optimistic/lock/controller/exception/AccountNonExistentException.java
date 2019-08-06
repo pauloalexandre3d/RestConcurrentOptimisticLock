@@ -1,4 +1,4 @@
-package com.optimistic.lock.exception;
+package com.optimistic.lock.controller.exception;
 
 public class AccountNonExistentException extends RuntimeException {
 

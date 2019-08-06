@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.optimistic.lock.controller.exception.AccountNonExistentException;
+import com.optimistic.lock.controller.exception.AccountOldVersionedException;
 import com.optimistic.lock.domain.Account;
-import com.optimistic.lock.exception.AccountNonExistentException;
 import com.optimistic.lock.repositories.Accounts;
 
 @RestController

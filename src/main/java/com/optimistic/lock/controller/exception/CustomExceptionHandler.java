@@ -1,6 +1,5 @@
-package com.optimistic.lock.controller;
+package com.optimistic.lock.controller.exception;
 
-import com.optimistic.lock.exception.AccountNonExistentException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
