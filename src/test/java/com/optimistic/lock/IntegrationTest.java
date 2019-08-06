@@ -84,7 +84,7 @@ public class IntegrationTest {
 	}
 	
 	@Test
-	public void testName() throws Exception {
+	public void testShouldAssertEtagExistsInHeader() throws Exception {
 		Account accountSaved = (Account) accounts.save(new Account(null, null, 50L));
 		ResponseEntity<Account> response = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
 				Account.class);
