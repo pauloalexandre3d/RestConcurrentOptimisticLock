@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
-public class ControllerTests {
+public class AccountControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;

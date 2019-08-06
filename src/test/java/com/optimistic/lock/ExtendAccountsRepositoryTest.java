@@ -34,7 +34,6 @@ public class ExtendAccountsRepositoryTest {
 	@Test
 	public void givenStudents_whenFindByName_thenOk() {
 		List<Account> acounts = accounts.findAll();
-
 		assertEquals("size incorrect", 3, acounts.size());
 	}
 

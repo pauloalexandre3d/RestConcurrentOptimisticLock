@@ -3,6 +3,7 @@ package com.optimistic.lock.controller;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,23 +21,40 @@ import com.optimistic.lock.repositories.Accounts;
 public final class AccountController {
 
 	@Autowired
-    private Accounts accounts;
+	private Accounts accounts;
 
-    @GetMapping(value = "/{id}")
-    public Account getAccountById(@PathVariable("id") Long accountId) {
-        Optional<Account> account = accounts.findById(accountId);
+	@GetMapping(value = "/{id}")
+	public Account getAccountById(@PathVariable("id") Long accountId) {
+		Optional<Account> account = accounts.findById(accountId);
+
+		if (!account.isPresent())
+			throw new AccountNonExistentException(accountId);
+		return account.get();
+	}
+
+	@GetMapping(value = "/{id}/custom-etag")
+	public ResponseEntity<Account> getAccountByIdEtag(@PathVariable("id") Long accountId) {
+		// @formatter:off
+
+    	Optional<Account> account = accounts.findById(accountId);
 
         if (!account.isPresent())
             throw new AccountNonExistentException(accountId);
-        return account.get();
-    }
+        return ResponseEntity
+        		.ok()
+        		.eTag(Long.toString(
+        				account.get().getVersion()))
+        		.body(account.get());
+        
+     // @formatter:onÏ
+	}
 
-    @PutMapping(value = "/")
-    public void updateBalance(@RequestBody Account account) {
+	@PutMapping(value = "/")
+	public void updateBalance(@RequestBody Account account) {
 		try {
 			accounts.save(account);
 		} catch (ObjectOptimisticLockingFailureException e) {
-            throw new AccountOldVersionedException(account.getId());
+			throw new AccountOldVersionedException(account.getId());
 		}
-    }
+	}
 }
