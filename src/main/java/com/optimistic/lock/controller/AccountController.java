@@ -1,14 +1,17 @@
 package com.optimistic.lock.controller;
 
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,14 +52,22 @@ public final class AccountController {
         
      // @formatter:on
 	}
-	
+
 	@PutMapping(value = "/custom-etag")
-	public void updateBalanceWithEtag(@RequestBody Account account) {
+	public ResponseEntity<Account> updateBalanceWithEtag(@RequestHeader Map<String, String> headers,
+			@RequestBody Account account) {
+		Account accountUpdated;
 		try {
-			accounts.save(account);
+			if (headers.containsKey("if-match") && !headers.get("if-match").trim()
+					.equals(accounts.findById(account.getId()).get().getVersion().toString())) {
+				return ResponseEntity.status(HttpStatus.PRECONDITION_FAILED).build();
+			}
+
+			accountUpdated = accounts.save(account);
 		} catch (ObjectOptimisticLockingFailureException e) {
 			throw new AccountOldVersionedException(account.getId());
 		}
+		return new ResponseEntity<Account>(accountUpdated, HttpStatus.OK);
 	}
 
 	@PutMapping(value = "/")

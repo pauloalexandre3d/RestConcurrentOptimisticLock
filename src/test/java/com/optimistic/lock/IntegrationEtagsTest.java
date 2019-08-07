@@ -92,11 +92,15 @@ public class IntegrationEtagsTest {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("If-Match", "pumpkinOrAnyThingElse");
-		HttpEntity<Account> entity = new HttpEntity<Account>(headers);
-		ResponseEntity<Account> secondResponse = restTemplate
-				.exchange("/accounts/" + accountSaved.getId() + "/custom-etag", HttpMethod.GET, entity, Account.class);
+		HttpEntity<Account> entity = new HttpEntity<Account>(accountSaved, headers);
 		
-		assertThat(secondResponse.getStatusCodeValue(), equalTo(200));
+		ResponseEntity<Account> secondResponse = restTemplate
+				.exchange("/accounts/custom-etag/", HttpMethod.PUT, entity, Account.class);
+				
+		
+		assertThat(secondResponse.getStatusCodeValue(), equalTo(412));
 	}
+	
+	
 
 }
