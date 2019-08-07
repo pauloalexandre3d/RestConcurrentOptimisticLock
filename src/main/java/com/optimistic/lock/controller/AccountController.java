@@ -47,7 +47,16 @@ public final class AccountController {
         				account.get().getVersion()))
         		.body(account.get());
         
-     // @formatter:onÏ
+     // @formatter:on
+	}
+	
+	@PutMapping(value = "/custom-etag")
+	public void updateBalanceWithEtag(@RequestBody Account account) {
+		try {
+			accounts.save(account);
+		} catch (ObjectOptimisticLockingFailureException e) {
+			throw new AccountOldVersionedException(account.getId());
+		}
 	}
 
 	@PutMapping(value = "/")

@@ -1,7 +1,7 @@
 package com.optimistic.lock;
 
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat; 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,20 +39,19 @@ public class IntegrationTest {
 	}
 
 	@Test
-	public void testShouldAssertStatesOfEntitysIsOutOfDate() {
+	public void testShouldAssertStatesOfEntitiesIsOutOfDate() {
 		Account accountSaved = (Account) accounts.save(new Account(null, 1L, 50L));
 
-		ResponseEntity<Account> responseEntity1 = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId(),
+		ResponseEntity<Account> firstResponseEntity = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId(),
 				Account.class);
-		Account request1 = responseEntity1.getBody();
+		Account requestEntity1 = firstResponseEntity.getBody();
+		Account requestEntity2 = firstResponseEntity.getBody();
 
-		Account request2 = responseEntity1.getBody();
-
-		request2.setBalance(10L);
-		this.restTemplate.exchange("/accounts/", HttpMethod.PUT, new HttpEntity<>(request2), Account.class);
+		requestEntity2.setBalance(10L);
+		this.restTemplate.exchange("/accounts/", HttpMethod.PUT, new HttpEntity<>(requestEntity2), Account.class);
 
 		ResponseEntity<Account> responseEntity = this.restTemplate.exchange("/accounts/", HttpMethod.PUT,
-				new HttpEntity<>(request1), Account.class);
+				new HttpEntity<>(requestEntity1), Account.class);
 		assertThat(responseEntity.getStatusCode(), equalTo(HttpStatus.PRECONDITION_FAILED));
 	}
 
@@ -70,7 +68,7 @@ public class IntegrationTest {
 	}
 
 	@Test
-	public void testShouldAssertUpdateEntity() {
+	public void testShouldAssertUpdatedEntity() {
 		Account accountSaved = (Account) accounts.save(new Account(null, 1L, 50L));
 
 		accountSaved.setBalance(10L);
@@ -83,27 +81,5 @@ public class IntegrationTest {
 		assertThat(accountUpdated.getBalance(), equalTo(10L));
 	}
 	
-	@Test
-	public void testShouldAssertEtagExistsInHeader() throws Exception {
-		Account accountSaved = (Account) accounts.save(new Account(null, null, 50L));
-		ResponseEntity<Account> response = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
-				Account.class);
-
-		assertThat(response.getHeaders().getETag(), notNullValue());
-	}
 	
-	@Test
-	public void testShouldAssertEtagExistsInHeader2() throws Exception {
-		Account accountSaved = (Account) accounts.save(new Account(null, null, 50L));
-		ResponseEntity<Account> firstResponse = this.restTemplate.getForEntity("/accounts/" + accountSaved.getId()+"/custom-etag",
-				Account.class);
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("If-None-Match", firstResponse.getHeaders().getETag());
-
-		HttpEntity<Account> entity = new HttpEntity<Account>(headers);
-		ResponseEntity<Account> secondResponse = restTemplate.exchange("/accounts/" + accountSaved.getId()+"/custom-etag", HttpMethod.GET, entity, Account.class);
-		
-		assertThat(secondResponse.getStatusCodeValue(), equalTo(304));
-	}
 }
